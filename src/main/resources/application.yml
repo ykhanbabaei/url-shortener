@@ -1,0 +1,12 @@
+spring:
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://${POSTGRESQL_HOST:localhost}:${POSTGRESQL_PORT:5432}/${POSTGRESQL_DBNAME:urlshortener}
+    username: ${POSTGRESQL_USERNAME:root}
+    password: ${POSTGRESQL_PASSWORD:root}
+    driverClassName: org.postgresql.Driver
