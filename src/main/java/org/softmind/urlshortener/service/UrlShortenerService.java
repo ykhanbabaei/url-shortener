@@ -5,10 +5,12 @@ import org.slf4j.LoggerFactory;
 import org.softmind.urlshortener.exception.AlreadyRegisteredException;
 import org.softmind.urlshortener.exception.NotFoundException;
 import org.softmind.urlshortener.exception.SaveException;
+import org.softmind.urlshortener.exception.UrlNullException;
 import org.softmind.urlshortener.model.UrlShortener;
 import org.softmind.urlshortener.repository.UrlShortenerRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -32,6 +34,9 @@ public class UrlShortenerService {
     }
 
     private UrlShortener handleRegister(String url) {
+        if(!StringUtils.hasText(url)){
+            throw new UrlNullException("url is null or empty");
+        }
         if(urlShortenerRepository.findByUrl(url).isPresent()){
             throw new AlreadyRegisteredException(String.format("Url already registered: %s ", url));
         }

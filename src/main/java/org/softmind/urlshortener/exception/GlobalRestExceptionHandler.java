@@ -35,6 +35,13 @@ public class GlobalRestExceptionHandler {
         return new ErrorResponse("url register error", "Error happened during the registration of the url. Try again later.", LocalDateTime.now());
     }
 
+    @ExceptionHandler(UrlNullException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ErrorResponse handleDefaultException(UrlNullException e){
+        logger.error("Url is null or empty.", e);
+        return new ErrorResponse("Url is null or empty","Url is null and empty. Valid non empty url is required", LocalDateTime.now());
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     ErrorResponse handleDefaultException(Exception e){

@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.softmind.urlshortener.exception.AlreadyRegisteredException;
 import org.softmind.urlshortener.exception.NotFoundException;
 import org.softmind.urlshortener.exception.SaveException;
+import org.softmind.urlshortener.exception.UrlNullException;
 import org.softmind.urlshortener.service.UrlShortenerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,9 +35,9 @@ public class UrlShortenerWebController {
     }
 
     @PostMapping("/register")
-    public CompletableFuture<String> urlSubmit(@ModelAttribute("url") String container, Model model) {
+    public CompletableFuture<String> urlSubmit(@ModelAttribute("url") String url, Model model) {
         final String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
-        return urlShortenerService.register(container).thenApply(code-> prepareRegisterModel(code, model, baseUrl));
+        return urlShortenerService.register(url).thenApply(code-> prepareRegisterModel(code, model, baseUrl));
     }
 
     private String prepareRegisterModel(String code, Model model, String baseUrl) {
@@ -66,6 +67,12 @@ public class UrlShortenerWebController {
     public ModelAndView handleNotFoundException(NotFoundException e){
         logger.warn("url not found ", e);
         return createErrorModelAndView("url not found");
+    }
+
+    @ExceptionHandler(UrlNullException.class)
+    public ModelAndView handleUrlNullException(UrlNullException e){
+        logger.warn("url is null or empty", e);
+        return createErrorModelAndView("url is null or empty");
     }
 
     private static ModelAndView createErrorModelAndView(String errorDescription){
