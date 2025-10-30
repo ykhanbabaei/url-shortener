@@ -2,9 +2,9 @@ package org.softmind.urlshortener.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.softmind.urlshortener.exception.RegisterException;
-import org.softmind.urlshortener.exception.UrlAlreadyRegistered;
-import org.softmind.urlshortener.exception.UrlNotFoundException;
+import org.softmind.urlshortener.exception.AlreadyRegisteredException;
+import org.softmind.urlshortener.exception.NotFoundException;
+import org.softmind.urlshortener.exception.SaveException;
 import org.softmind.urlshortener.model.UrlShortener;
 import org.softmind.urlshortener.repository.UrlShortenerRepository;
 import org.springframework.cache.annotation.Cacheable;
@@ -33,14 +33,14 @@ public class UrlShortenerService {
 
     private UrlShortener handleRegister(String url) {
         if(urlShortenerRepository.findByUrl(url).isPresent()){
-            throw new UrlAlreadyRegistered(String.format("Url already registered: %s ", url));
+            throw new AlreadyRegisteredException(String.format("Url already registered: %s ", url));
         }
         try {
             UrlShortener urlShortener = urlShortenerRepository.save(new UrlShortener(null, url, createRandomCode(), LocalDate.now()));
-            logger.info("new url registered. code: {}", urlShortener.getCode());
+            logger.info("new url registered id:{}.", urlShortener.getId());
             return urlShortener;
         } catch (Exception e) {
-            throw new RegisterException(String.format("Exception during url persistence: %s ", url), e);
+            throw new SaveException(String.format("Exception during url persistence: %s ", url), e);
         }
     }
 
@@ -50,7 +50,7 @@ public class UrlShortenerService {
     }
 
     private UrlShortener handleUrl(String code){
-        return urlShortenerRepository.findByCode(code).orElseThrow(()->new UrlNotFoundException(String.format("url for given code not found: %s ", code)));
+        return urlShortenerRepository.findByCode(code).orElseThrow(()->new NotFoundException(String.format("url for given code not found: %s ", code)));
     }
 
     private String createRandomCode() {

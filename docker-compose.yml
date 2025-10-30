@@ -29,6 +29,7 @@ services:
   urlshortener:
     container_name: urlshortener_container
     image: softmind/url-shortener
+    build: .
     restart: always
     environment:
       POSTGRESQL_HOST: db

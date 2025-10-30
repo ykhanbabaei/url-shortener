@@ -1,13 +1,18 @@
 package org.softmind.urlshortener.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.softmind.urlshortener.exception.AlreadyRegisteredException;
+import org.softmind.urlshortener.exception.NotFoundException;
+import org.softmind.urlshortener.exception.SaveException;
 import org.softmind.urlshortener.service.UrlShortenerService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.concurrent.CompletableFuture;
@@ -15,19 +20,59 @@ import java.util.concurrent.CompletableFuture;
 @Controller
 public class UrlShortenerWebController {
 
+    private static final Logger logger = LoggerFactory.getLogger(UrlShortenerWebController.class);
+
     private final UrlShortenerService urlShortenerService;
 
     public UrlShortenerWebController(UrlShortenerService urlShortenerService) {
         this.urlShortenerService = urlShortenerService;
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/{code}")
-    public CompletableFuture<ResponseEntity<Void>> findUrl(@PathVariable("code") String code){
-        return urlShortenerService.findUrl(code).thenApply(this::redirectResponse);
+    @GetMapping("/")
+    public String registerForm(Model model) {
+        return "register";
     }
 
-    private ResponseEntity<Void> redirectResponse(String url) {
-        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(url)).build();
+    @PostMapping("/register")
+    public CompletableFuture<String> urlSubmit(@ModelAttribute("url") String container, Model model) {
+        final String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        return urlShortenerService.register(container).thenApply(code-> prepareRegisterModel(code, model, baseUrl));
+    }
+
+    private String prepareRegisterModel(String code, Model model, String baseUrl) {
+        model.addAttribute("surl", baseUrl + "/" + code);
+        return "result";
+    }
+
+    @RequestMapping(method = RequestMethod.GET, path = "/{code}")
+    public CompletableFuture<ResponseEntity<Void>> findUrlAndRedirect(@PathVariable("code") String code){
+        return urlShortenerService.findUrl(code).thenApply(url->ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(url)).build());
+    }
+
+    @ExceptionHandler(SaveException.class)
+    public ModelAndView handleSaveException(SaveException e){
+        logger.error("error in url registration", e);
+        return createErrorModelAndView("Error in url registration.");
+    }
+
+    @ExceptionHandler(AlreadyRegisteredException.class)
+    public ModelAndView handleRegisterException(AlreadyRegisteredException e){
+        logger.warn("url already registered ", e);
+        return createErrorModelAndView("url already registered");
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ModelAndView handleNotFoundException(NotFoundException e){
+        logger.warn("url not found ", e);
+        return createErrorModelAndView("url not found");
+    }
+
+    private static ModelAndView createErrorModelAndView(String errorDescription){
+        ModelAndView mav = new ModelAndView();
+        mav.addObject("description", errorDescription);
+        mav.setViewName("error");
+        return mav;
     }
 
 }

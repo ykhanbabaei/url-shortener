@@ -14,21 +14,21 @@ public class GlobalRestExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalRestExceptionHandler.class);
 
-    @ExceptionHandler(UrlNotFoundException.class)
+    @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     ErrorResponse handleUrlNotFoundException(Exception e){
         logger.error("url not found ", e);
         return new ErrorResponse("Url not found", "The given url not registered. First register the url.", LocalDateTime.now());
     }
 
-    @ExceptionHandler(UrlAlreadyRegistered.class)
+    @ExceptionHandler(AlreadyRegisteredException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ErrorResponse handleUrlAlreadyRegistered(Exception e){
         logger.warn("url already registered ", e);
         return new ErrorResponse("url already registered", "The provided url already registered.", LocalDateTime.now());
     }
 
-    @ExceptionHandler(RegisterException.class)
+    @ExceptionHandler(SaveException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     ErrorResponse handleRegisterException(Exception e){
         logger.error("error in url registration ", e);
