@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @SpringBootTest
-public class UrlShortenerRepositoryTest {
+class UrlShortenerRepositoryTest {
 
     @Autowired
     private Validator validator;
@@ -22,33 +22,37 @@ public class UrlShortenerRepositoryTest {
     UrlShortenerRepository urlShortenerRepository;
 
     @Test
-    public void testSavingUrl(){
-        UrlShortener persisted = urlShortenerRepository.save(new UrlShortener(null, "https://google.com", "abcd1", null));
+    void testSavingUrl(){
+        var entity = new UrlShortener(null, "https://google.com", "abcd1", null);
+        UrlShortener persisted = urlShortenerRepository.save(entity);
         assertThat(persisted.getId()).isNotNull();
     }
 
     @Test
-    public void testSavingNullUrl(){
-        assertThrows(DataIntegrityViolationException.class,
-                () ->  urlShortenerRepository.save(new UrlShortener(null, null, "abcd2", null)));
+    void testSavingNullUrl(){
+        var entity = new UrlShortener(null, null, "abcd2", null);
+        assertThrows(DataIntegrityViolationException.class, () ->  urlShortenerRepository.save(entity));
     }
 
     @Test
-    public void testSavingComplicatedValidUrl(){
-        UrlShortener persisted = urlShortenerRepository.save(new UrlShortener(null, "https://api.example.com:8443/v1/users/42/orders/active/details?filter=status%3Aopen%2Cpaid&sort=createdAt%3Adesc&include=items,shippingAddress&limit=50&offset=100&debug=true&redirect=https%3A%2F%2Fdashboard.example.com%2Fuser%3Ftab%3Dorders%23recent", "abcd3", null));
+    void testSavingComplicatedValidUrl(){
+        var entity = new UrlShortener(null, "https://api.example.com:8443/v1/users/42/orders/active/details?filter=status%3Aopen%2Cpaid&sort=createdAt%3Adesc&include=items,shippingAddress&limit=50&offset=100&debug=true&redirect=https%3A%2F%2Fdashboard.example.com%2Fuser%3Ftab%3Dorders%23recent", "abcd3", null);
+        UrlShortener persisted = urlShortenerRepository.save(entity);
         assertThat(persisted.getId()).isNotNull();
     }
 
     @Test
-    public void testSavingInvalidUrl(){
+    void testSavingInvalidUrl(){
+        var entity = new UrlShortener(null, "invalidUrl", "abcd4", null);
         assertThrows(TransactionSystemException.class,
-                () ->  urlShortenerRepository.save(new UrlShortener(null, "invalidUrl", "abcd4", null)));
+                () ->  urlShortenerRepository.save(entity));
     }
 
     @Test
-    public void testSavingNullCode(){
+    void testSavingNullCode(){
+        var entity = new UrlShortener(null, "https://google.com", null, null);
         assertThrows(DataIntegrityViolationException.class,
-                () ->  urlShortenerRepository.save(new UrlShortener(null, "https://google.com", null, null)));
+                () ->  urlShortenerRepository.save(entity));
     }
 
 }

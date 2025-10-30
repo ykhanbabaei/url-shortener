@@ -32,8 +32,7 @@ class UrlShortenerServiceTest {
         when(urlShortenerRepository.findByUrl(anyString())).thenReturn(Optional.empty());
         when(urlShortenerRepository.save(any())).thenReturn(mockUrlShortener());
         String code = urlShortenerService.register("http://example.com").get();
-        assertThat(code).isNotNull();
-        assertThat(code.length()).isEqualTo(5);
+        assertThat(code).isNotNull().hasSize(5);
     }
 
     private UrlShortener mockUrlShortener() {

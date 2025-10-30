@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class CacheConfig {
 
     @Bean
-    public CacheManager cacheManager(Caffeine caffeine) {
+    public CacheManager cacheManager(Caffeine<Object, Object> caffeine) {
         CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager("urls");
         caffeineCacheManager.setAsyncCacheMode(true);
         caffeineCacheManager.setCaffeine(caffeine);
@@ -22,7 +22,7 @@ public class CacheConfig {
     }
 
     @Bean
-    public Caffeine caffeineConfig() {
+    public Caffeine<Object, Object> caffeineConfig() {
         return Caffeine.newBuilder().expireAfterAccess(60, TimeUnit.MINUTES).maximumSize(1000);
     }
 

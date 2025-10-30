@@ -15,12 +15,12 @@ public class UrlShortenerController {
         this.urlShortenerService = urlShortenerService;
     }
 
-    @RequestMapping(method = RequestMethod.POST, path = "api/register")
+    @PostMapping(path = "api/register")
     public CompletableFuture<String> register(@RequestBody UrlDto urlDto){
         return urlShortenerService.register(urlDto.url());
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "api/{code}")
+    @GetMapping(path = "api/{code}")
     public CompletableFuture<String> findUrl(@PathVariable("code") String code){
         return urlShortenerService.findUrl(code);
     }

@@ -5,13 +5,9 @@ import org.softmind.urlshortener.dto.UrlDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,7 +26,8 @@ class UrlShortenerControllerTest {
         ResponseEntity<String> response = restTemplate.postForEntity("/api/register", new UrlDto("https://exampl.com"), String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().length()).isEqualTo(5);
+        assertThat(response.getBody()).hasSize(5);
+
     }
 
     @Test
@@ -60,7 +57,7 @@ class UrlShortenerControllerTest {
     }
 
     @Test
-    void testUrlCache() throws ExecutionException, InterruptedException {
+    void testUrlCache() {
         var url = "https://example3.com";
         ResponseEntity<String> response = restTemplate.postForEntity("/api/register", new UrlDto(url), String.class);
         var code = response.getBody();

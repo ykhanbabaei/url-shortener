@@ -45,7 +45,7 @@ public class UrlShortenerWebController {
         return "result";
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/{code}")
+    @GetMapping(path = "/{code}")
     public CompletableFuture<ResponseEntity<Void>> findUrlAndRedirect(@PathVariable("code") String code){
         return urlShortenerService.findUrl(code).thenApply(url->ResponseEntity.status(HttpStatus.FOUND)
                 .location(URI.create(url)).build());
